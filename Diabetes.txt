@@ -1,0 +1,48 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, recall_score
+
+
+df = pd.read_csv("diabetes.csv")
+df.drop_duplicates()
+
+
+X = df.drop("Outcome",axis = 1)
+y = df["Outcome"]
+
+
+# Replace invalid zero values in selected medical measurements
+cols = ["Glucose", "BloodPressure", "SkinThickness", "Insulin", "BMI"]
+for col in cols:
+    if col in X.columns:
+        X[col] = X[col].replace(0,float("nan"))
+        X[col] = X[col].fillna(X[col].median())
+
+
+# Split Dataset
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state = 42, stratify = y
+)
+
+
+# Normalise Features
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+
+
+model = KNeighborsClassifier(n_neighbors = 5)
+model.fit(X_train,y_train)
+
+y_pred = model.predict(X_test)
+
+
+accuracy = accuracy_score(y_test,y_pred)
+print("Confusion Matrix : \n",confusion_matrix(y_test,y_pred))
+print("Accuracy :",accuracy)
+print("Error : ", 1-accuracy)
+print("Precision :",precision_score(y_test,y_pred,zero_division=0))
+print("Recall : ", recall_score(y_test,y_pred,zero_division=0))
