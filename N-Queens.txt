@@ -1,0 +1,54 @@
+def is_safe(board, row, col, n):
+    i, j = row, col
+    while i >= 0 and j >= 0:
+        if board[i][j] == 1:
+            return False
+        i -= 1
+        j -= 1
+
+    i, j = row, col
+    while i < n and j >= 0:
+        if board[i][j] == 1:
+            return False
+        i += 1
+        j -= 1
+
+    for j in range(col):
+        if board[row][j] == 1:
+            return False
+
+    return True
+
+
+def solve_n_queens(board, col, n):
+    if col >= n:
+        return True
+
+    for row in range(n):
+        if is_safe(board, row, col, n):
+            board[row][col] = 1
+
+            if solve_n_queens(board, col + 1, n):
+                return True
+
+            board[row][col] = 0
+
+    return False
+
+
+n = int(input("Enter the value of N: "))
+
+if n < 1:
+    print("N must be positive")
+else:
+    board = [[0] * n for _ in range(n)]
+
+    board[0][0] = 1
+
+    if solve_n_queens(board, 1, n):
+        print("N-Queens Matrix : ")
+        for row in board:
+            print(*row)
+
+    else:
+        print("No Solutions exists with the first queen fixed at (0,0).")
